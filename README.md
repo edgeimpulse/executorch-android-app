@@ -4,6 +4,9 @@ A minimal Kotlin Android app that runs an [ExecuTorch](https://docs.pytorch.org/
 `.pte` model on-device using the XNNPACK CPU backend. It is wired to load an
 **Edge Impulse-exported** model.
 
+<img width="2169" height="1360" alt="image" src="https://github.com/user-attachments/assets/5210cfa7-742f-4901-8f11-c50aff78fd9d" />
+
+
 ## Project layout
 
 ```

@@ -6,34 +6,48 @@ A minimal Kotlin Android app that runs an [ExecuTorch](https://docs.pytorch.org/
 
 <img width="2169" height="1360" alt="image" src="https://github.com/user-attachments/assets/5210cfa7-742f-4901-8f11-c50aff78fd9d" />
 
+## Prebuilt sample APKs
+
+Grab an APK from the [**Releases**](../../releases) page and sideload it — no
+build required. Each ships a different Edge Impulse model and installs under its
+own app id, so you can keep all three side by side:
+
+| APK | Model | Input shape | Classes |
+| --- | --- | --- | --- |
+| `app-classification-debug.apk` | Image classifier | `[1, 3, 96, 96]` | lamp, plant, unknown |
+| `app-fomo-debug.apk` | FOMO object detection | `[1, 3, 320, 320]` | coffee, lamp |
+| `app-timeseries-debug.apk` | Motion (spectral) | `[1, 39]` | idle, snake, updown, wave |
+
+```bash
+adb install -r app-classification-debug.apk
+```
+
+Open the app and tap **Run inference**. It runs one forward pass on a placeholder
+input and shows the output scores — proof the model loads and runs on-device.
 
 ## Project layout
 
 ```
 app/
-  src/main/
-    assets/                    <- put model.pte + labels.txt here
-    java/com/example/executorchdemo/
-      MainActivity.kt          <- UI + runs one inference on a button tap
-      EdgeImpulseClassifier.kt <- loads the .pte, runs forward(), reads scores
-    res/                       <- layout, theme, launcher icon
+  src/
+    main/                         <- shared code, UI, launcher icon (no model)
+      java/com/example/executorchdemo/
+        MainActivity.kt           <- UI + runs one inference on a button tap
+        EdgeImpulseClassifier.kt  <- loads the .pte, runs forward(), reads scores
+    classification/assets/        <- model.pte + labels.txt + input_shape.txt
+    fomo/assets/                  <- model.pte + labels.txt + input_shape.txt
+    timeseries/assets/            <- model.pte + labels.txt + input_shape.txt
 ```
 
-## Wiring in your model
+Each model is a Gradle **product flavor** (`classification`, `fomo`,
+`timeseries`). The bundled assets per flavor are:
 
-1. Export your model from Edge Impulse (ExecuTorch deployment block or custom
-   block) and copy it to:
-   - `app/src/main/assets/model.pte`
-2. Fill `app/src/main/assets/labels.txt` with one class label per line, in the
-   model's output order.
-3. Set `INPUT_SHAPE` in
-   [`EdgeImpulseClassifier.kt`](app/src/main/java/com/example/executorchdemo/EdgeImpulseClassifier.kt)
-   to match your model input. Examples:
-   - Image 96x96 RGB (NHWC): `longArrayOf(1, 96, 96, 3)`
-   - Image 96x96 RGB (NCHW): `longArrayOf(1, 3, 96, 96)`
-   - Tabular / time-series with N features: `longArrayOf(1, N)`
-4. Replace the all-zeros placeholder input in `MainActivity.runInference()` with
-   real, preprocessed data (a normalized camera frame, a sensor window, etc.).
+- `model.pte` — the ExecuTorch program exported from Edge Impulse
+- `labels.txt` — one class label per line, in output order
+- `input_shape.txt` — the input tensor shape, e.g. `1,3,96,96` (NCHW)
+
+The input shape is read at runtime from `input_shape.txt`, so adding a new model
+is just a new flavor + assets — no code change.
 
 ## Dependency
 
@@ -46,19 +60,25 @@ implementation("org.pytorch:executorch-android:1.0.0")
 ## Build & run
 
 ```bash
-# from the project root
-./gradlew :app:assembleDebug          # build a debug APK
+# build every flavor's debug APK
+./gradlew assembleDebug
+# -> app/build/outputs/apk/<flavor>/debug/app-<flavor>-debug.apk
 
-# install on a connected device / emulator
-./gradlew :app:installDebug
+# build/install a single flavor
+./gradlew installClassificationDebug   # or installFomoDebug / installTimeseriesDebug
 ```
 
-If you see this you have not built and included an edge impulse pte yet:
+If a flavor has no bundled model you'll see this instead:
 
 <img width="1310" height="1360" alt="image" src="https://github.com/user-attachments/assets/bf3ed1a9-635c-493e-9160-f2ea60300846" />
 
-
-The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
-
 Requires the Android SDK (platform 35, build-tools 35) and JDK 17. The SDK
 location is read from `local.properties` (`sdk.dir`).
+
+## Using your own Edge Impulse model
+
+1. Add a flavor asset folder, e.g. `app/src/<name>/assets/`, with `model.pte`,
+   `labels.txt`, and `input_shape.txt`.
+2. Register the flavor in `app/build.gradle.kts` under `productFlavors`.
+3. Replace the all-zeros placeholder input in `MainActivity.runInference()` with
+   real, preprocessed data (a normalized camera frame, a sensor window, etc.).

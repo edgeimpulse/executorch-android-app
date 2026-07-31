@@ -1,0 +1,4 @@
+idle
+snake
+updown
+wave

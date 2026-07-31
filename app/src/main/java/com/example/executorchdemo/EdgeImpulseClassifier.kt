@@ -21,27 +21,31 @@ class EdgeImpulseClassifier(context: Context) {
     companion object {
         const val MODEL_ASSET = "model.pte"
         const val LABELS_ASSET = "labels.txt"
+        const val SHAPE_ASSET = "input_shape.txt"
 
-        /**
-         * Input tensor shape expected by the model. Update this to match your export:
-         *   - Image classifier 96x96 RGB (NHWC): longArrayOf(1, 96, 96, 3)
-         *   - Image classifier 96x96 RGB (NCHW): longArrayOf(1, 3, 96, 96)
-         *   - Time-series / tabular, N features:  longArrayOf(1, N)
-         */
-        val INPUT_SHAPE = longArrayOf(1, 96, 96, 3)
+        // Used only when input_shape.txt is absent. Edge Impulse ExecuTorch
+        // exports are NCHW, e.g. an image classifier is [1, 3, H, W].
+        val DEFAULT_INPUT_SHAPE = longArrayOf(1, 3, 96, 96)
     }
 
     private val module: Module
     val labels: List<String>
 
+    /**
+     * Input tensor shape, read from the `input_shape.txt` asset (comma-separated,
+     * e.g. `1,3,96,96`). Falls back to [DEFAULT_INPUT_SHAPE].
+     */
+    val inputShape: LongArray
+
     init {
         val modelPath = copyAssetToCache(context, MODEL_ASSET)
         module = Module.load(modelPath)
         labels = loadLabels(context, LABELS_ASSET)
+        inputShape = loadInputShape(context, SHAPE_ASSET)
     }
 
     /** Number of float values in a single flattened input tensor. */
-    fun inputElementCount(): Int = INPUT_SHAPE.fold(1L) { acc, dim -> acc * dim }.toInt()
+    fun inputElementCount(): Int = inputShape.fold(1L) { acc, dim -> acc * dim }.toInt()
 
     data class Prediction(
         val label: String,
@@ -56,10 +60,10 @@ class EdgeImpulseClassifier(context: Context) {
     fun classify(input: FloatArray): Prediction {
         require(input.size == inputElementCount()) {
             "Input has ${input.size} values but the model expects " +
-                "${inputElementCount()} (shape ${INPUT_SHAPE.toList()})."
+                "${inputElementCount()} (shape ${inputShape.toList()})."
         }
 
-        val inputTensor = Tensor.fromBlob(input, INPUT_SHAPE)
+        val inputTensor = Tensor.fromBlob(input, inputShape)
         val outputs = module.forward(EValue.from(inputTensor))
         val scores = outputs[0].toTensor().dataAsFloatArray
 
@@ -80,5 +84,18 @@ class EdgeImpulseClassifier(context: Context) {
     private fun loadLabels(context: Context, name: String): List<String> =
         context.assets.open(name).bufferedReader().useLines { lines ->
             lines.map { it.trim() }.filter { it.isNotEmpty() }.toList()
+        }
+
+    private fun loadInputShape(context: Context, name: String): LongArray =
+        try {
+            val values = context.assets.open(name).bufferedReader().use { it.readText() }
+                .split(',', ' ', '\n', '\r', '\t')
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .map { it.toLong() }
+                .toLongArray()
+            if (values.isNotEmpty()) values else DEFAULT_INPUT_SHAPE
+        } catch (e: java.io.FileNotFoundException) {
+            DEFAULT_INPUT_SHAPE
         }
 }

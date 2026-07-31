@@ -20,6 +20,30 @@ android {
         }
     }
 
+    // One flavor per bundled Edge Impulse model. Each gets a unique applicationId
+    // suffix so all three can be installed side by side on the same device.
+    flavorDimensions += "model"
+    productFlavors {
+        create("classification") {
+            dimension = "model"
+            applicationIdSuffix = ".classification"
+            versionNameSuffix = "-classification"
+            resValue("string", "app_name", "ExecuTorch Classification")
+        }
+        create("fomo") {
+            dimension = "model"
+            applicationIdSuffix = ".fomo"
+            versionNameSuffix = "-fomo"
+            resValue("string", "app_name", "ExecuTorch FOMO")
+        }
+        create("timeseries") {
+            dimension = "model"
+            applicationIdSuffix = ".timeseries"
+            versionNameSuffix = "-timeseries"
+            resValue("string", "app_name", "ExecuTorch Time Series")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">ExecuTorch Demo</string>
     <string name="intro">Loads a .pte model with ExecuTorch and runs a single inference on-device (XNNPACK CPU backend).</string>
     <string name="run_button">Run inference</string>
     <string name="status_running">Running\u2026</string>

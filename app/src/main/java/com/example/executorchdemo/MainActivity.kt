@@ -35,13 +35,18 @@ class MainActivity : AppCompatActivity() {
 
                 val prediction = clf.classify(input)
                 buildString {
+                    appendLine("Input shape: ${clf.inputShape.toList()}")
+                    appendLine("Output values: ${prediction.scores.size}")
+                    appendLine()
                     appendLine("Top prediction:")
                     appendLine("  ${prediction.label}  (${"%.4f".format(prediction.confidence)})")
-                    appendLine()
-                    appendLine("All scores:")
-                    prediction.scores.forEachIndexed { i, score ->
-                        val name = clf.labels.getOrElse(i) { "class_$i" }
-                        appendLine("  $name: ${"%.4f".format(score)}")
+                    if (prediction.scores.size <= 32) {
+                        appendLine()
+                        appendLine("All scores:")
+                        prediction.scores.forEachIndexed { i, score ->
+                            val name = clf.labels.getOrElse(i) { "class_$i" }
+                            appendLine("  $name: ${"%.4f".format(score)}")
+                        }
                     }
                 }
             } catch (e: FileNotFoundException) {
@@ -52,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                   app/src/main/assets/model.pte
                   app/src/main/assets/labels.txt
 
-                Then set INPUT_SHAPE in EdgeImpulseClassifier.kt.
+                Optionally add app/src/main/assets/input_shape.txt (e.g. 1,3,96,96).
                 """.trimIndent()
             } catch (t: Throwable) {
                 "Inference failed: ${t.message}"

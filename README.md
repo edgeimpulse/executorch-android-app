@@ -53,6 +53,11 @@ implementation("org.pytorch:executorch-android:1.0.0")
 ./gradlew :app:installDebug
 ```
 
+If you see this you have not built and included an edge impulse pte yet:
+
+<img width="1310" height="1360" alt="image" src="https://github.com/user-attachments/assets/bf3ed1a9-635c-493e-9160-f2ea60300846" />
+
+
 The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
 Requires the Android SDK (platform 35, build-tools 35) and JDK 17. The SDK

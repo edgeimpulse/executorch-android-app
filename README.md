@@ -18,6 +18,13 @@ own app id, so you can keep all three side by side:
 | `app-fomo-debug.apk` | FOMO object detection | `[1, 3, 320, 320]` | coffee, lamp |
 | `app-timeseries-debug.apk` | Motion (spectral) | `[1, 39]` | idle, snake, updown, wave |
 
+<img width="1892" height="1360" alt="image" src="https://github.com/user-attachments/assets/5d532056-9a49-455d-955f-78ebdb40f6cd" />
+
+<img width="1892" height="1360" alt="image" src="https://github.com/user-attachments/assets/f1a2af36-7bed-421c-ae1e-d731560b8d77" />
+
+<img width="1892" height="1360" alt="image" src="https://github.com/user-attachments/assets/a99ee113-4b7c-4876-95af-844759d301a3" />
+
+
 ```bash
 adb install -r app-classification-debug.apk
 ```

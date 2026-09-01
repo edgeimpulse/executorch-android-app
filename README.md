@@ -19,7 +19,15 @@ own app id, so you can keep all three side by side:
 | `app-timeseries-debug.apk` | Motion (spectral) | `[1, 39]` | idle, snake, updown, wave |
 
 
-See also - https://github.com/edgeimpulse/executorch-pytorch-kws-block, https://github.com/edgeimpulse/executorch-pytorch-timeseries-block, https://github.com/edgeimpulse/executorch-android-app, https://github.com/edgeimpulse/executorch-deploy, https://github.com/edgeimpulse/executorch-pytorch-classification-block
+# Compatible Learn Blocks Classification, Timeseries, Object Detection FOMO & KWS
+| Name | link |
+|------|---------|
+| Timeseries | https://github.com/edgeimpulse/executorch-pytorch-timeseries-block |
+| Classification | https://github.com/edgeimpulse/executorch-pytorch-classification-block |
+| FOMO | https://github.com/edgeimpulse/executorch-pytorch-object-detection-fomo-block |
+| KWS | https://github.com/edgeimpulse/executorch-pytorch-kws-block |
+
+See also - https://github.com/edgeimpulse/executorch-android-app, https://github.com/edgeimpulse/executorch-deploy
 
 
 <img width="1892" height="1360" alt="image" src="https://github.com/user-attachments/assets/5d532056-9a49-455d-955f-78ebdb40f6cd" />
